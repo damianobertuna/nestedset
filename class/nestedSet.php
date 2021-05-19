@@ -1,69 +1,77 @@
 <?php
 
+/**
+ * Class nestedSet
+ */
 class nestedSet
 {
     private $dbconn;
-    private $databaseHelper;
+    private $helperClass;
 
-    public function __construct($dbconn, DatabaseHelper $databaseHelper)
+    /**
+     * nestedSet constructor.
+     * @param $dbconn
+     * @param helperClass $helperClass
+     */
+    public function __construct($dbconn, helperClass $helperClass)
     {
         $this->dbconn = $dbconn;
-        $this->databaseHelper = $databaseHelper;
+        $this->helperClass = $helperClass;
     }
 
-    public function Children(int $idNode, string $language, string $searchKeyword)
+    /** Questo metodo dato un idNode parent ed i parametri per filtrare la ricerca ritorna un json con i dati necessari da restituire
+     * @param int $idNode
+     * @param string $language
+     * @param string $searchKeyword
+     * @param int $pageNum
+     * @param int $pageSize
+     * @return array
+     */
+    public function Children(int $idNode, string $language, string $searchKeyword, int $pageNum, int $pageSize)
     {
         $nodeLevel = $this->getNodeLevel($idNode);
         $language = mysqli_real_escape_string($this->dbconn, $language);
 
-        $resNodes = $this->databaseHelper->getChildren($idNode, $nodeLevel, $language, $searchKeyword);
-        
-        $str = "";
-        $jsonStructure = array();
+        $resNodes = $this->helperClass->getChildren($idNode, $language, $searchKeyword, $pageNum, $pageSize);
+
+        $jsonChildrenStructure = array();
+        $rootChildNumber = $this->helperClass->childrenCount($idNode);
+        $jsonResponseStructure['rootNodesNumber'] = $rootChildNumber;
 
         if ($resNodes) {
-            $oldRowIndent = -1;
             if ($resNodes->num_rows) {
-                while($row = mysqli_fetch_assoc($resNodes))
-                {
-                    $childrenCount = $this->databaseHelper->childrenCount($idNode);
-                    extract($row);
-                    $jsonStructure[] = array(
-                        'node_id'           => $idNode,
-                        'name'              => $nodeName,
-                        'children_count'    => $childrenCount,
-                    );
-                    /*echo "<pre>";
-                    var_dump($row);
-                    echo "</pre>";
-                    exit();*/
-                    /*if($row['idNode'] == $idNode){
-                        $str .= ("<ul><li>". $row['name']);
-                    }
-                    elseif($row['level']>$oldRowIndent){
-                        $str .= ("<ul><li>".$row['idNode']." - ". $row['name']);
-                    }
-                    elseif($row['level']==$oldRowIndent){
-                        $str .= ("</li><li>".$row['idNode']." - ". $row['name']);
-                    }
-                    else {
-                        $str .= ("</li>");
-                        $str .=  str_repeat("</ul></li>", $oldRowIndent-$row['level']);
-                        $str .= ("<li>".$row['idNode']." - ". $row['name']);
-                    }
-                    $oldRowIndent = $row['level'];*/
-                }
-                /*$str .= ("</li>");
-                $str .=  str_repeat("</ul></li>", $oldRowIndent);
-                $str .= ("</ul>");*/
+                $jsonChildrenStructure = $this->fillJsonChildrenStructure($resNodes);
             }
         }
-        /*var_dump($str);
-        exit();*/
+
+        $jsonResponseStructure['nodes'] = $jsonChildrenStructure;
+
         //return json_encode($jsonStructure);
-        return $jsonStructure;
+        return $jsonResponseStructure;
     }
 
+    /**
+     * @param $resNodes
+     * @return array
+     */
+    private function fillJsonChildrenStructure($resNodes) {
+        while($row = mysqli_fetch_assoc($resNodes))
+        {
+            extract($row);
+            $childrenCount = $this->helperClass->childrenCount($idNode);
+            $jsonChildrenStructure[] = array(
+                'node_id'           => $idNode,
+                'name'              => $nodeName,
+                'children_count'    => $childrenCount,
+            );
+        }
+        return $jsonChildrenStructure;
+    }
+
+    /**
+     * @param $idNode
+     * @return mixed|string
+     */
     private function getNodeLevel($idNode)
     {
         $query = "SELECT level FROM node_tree WHERE idNode = ".intval($idNode);

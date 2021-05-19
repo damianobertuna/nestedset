@@ -1,8 +1,10 @@
 
 <?php
-// Ensure reporting is setup correctly
 
-class DatabaseHelper
+/**
+ * Class helperClass - metodi helper per fare query al database
+ */
+class helperClass
 {
     /**
      * Database constructor.
@@ -10,29 +12,50 @@ class DatabaseHelper
      */
     private $dbconn;
 
+    /**
+     * helperClass constructor.
+     * @param $dbconn
+     */
     public function __construct($dbconn) {
         $this->dbconn = $dbconn;
     }
 
-    public function getChildren($idNode, $nodeLevel, $language, $searchKeyword)
+    /** Questo metodo dati i seguenti parametri ritorna i figli di un dato nodo parent
+     * @param $idNode
+     * @param $language
+     * @param $searchKeyword
+     * @param $pageNum
+     * @param $pageSize
+     * @return bool|mysqli_result
+     */
+    public function getChildren($idNode, $language, $searchKeyword, $pageNum, $pageSize)
     {
-        $query = 'SELECT Child.idNode, Child.iLeft, Child.iRight, ntn.nodeName, Child.level level FROM node_tree Child LEFT JOIN node_tree_names ntn ON ntn.idNode = Child.idNode,  node_tree Parent WHERE Child.level = Parent.level + 1 AND Child.iLeft > Parent.iLeft AND Child.iRight < Parent.iRight AND Parent.idNode = '.$idNode.' AND ntn.language = "'.$language.'"';
+        $query = 'SELECT Child.idNode, Child.iLeft, Child.iRight, ntn.nodeName, Child.level level 
+FROM node_tree Child 
+    LEFT JOIN node_tree_names ntn ON ntn.idNode = Child.idNode,  node_tree Parent 
+WHERE Child.level = Parent.level + 1 
+  AND Child.iLeft > Parent.iLeft 
+  AND Child.iRight < Parent.iRight 
+  AND Parent.idNode = '.$idNode.' 
+  AND ntn.language = "'.$language.'"';
 
         if ($searchKeyword != '') {
-            $query .= ' AND LOWER(ntn.nodeName) LIKE "%'.$searchKeyword.'%"';
+            $query .= ' AND LOWER(ntn.nodeName) LIKE "%'.strtolower($searchKeyword).'%"';
         }
+        $startingNode = $pageNum;
+        if ($pageNum != 0) {
+            $startingNode = $pageNum + $pageSize;
+        }
+        $query .= " LIMIT ".$startingNode.", ".$pageSize;
 
         $resNodes = mysqli_query($this->dbconn, $query);
         return $resNodes;
     }
 
-    public function getAllChildrenByIdNode()
-    {
-        $query = "SELECT child.idNode, COUNT(*) AS Generation, ntn.nodeName, child.level FROM node_tree parent JOIN node_tree child ON child.ileft BETWEEN parent.ileft AND parent.ileft LEFT JOIN node_tree_names ntn ON ntn.idNode = parent.idNode WHERE parent.ileft > 1 AND parent.iRight < 24 AND ntn.language = 'english' GROUP BY child.idNode";
-        $resNodes = mysqli_query($this->dbconn, $query);
-        return $resNodes;
-    }
-
+    /** Questo metodo ritorna il numero di figli del dato idNode parent
+     * @param $idNode
+     * @return float|int
+     */
     public function childrenCount($idNode)
     {
         $query = "SELECT COUNT(t.idNode) AS Descendant
@@ -44,6 +67,32 @@ class DatabaseHelper
         $childrenCount = mysqli_fetch_assoc($childrenCount);
         $childrenCount = $childrenCount["Descendant"]/2;
         return $childrenCount;
+    }
+
+    public function validateParams($params)
+    {
+        global $errorDictionary;
+        global $jsonResponseStructure;
+        $mandatoryParams = array('node_id', 'language');
+
+        foreach ($mandatoryParams as $mandatory) {
+            if (!array_key_exists($mandatory, $params)) {
+                $jsonResponseStructure['error'] = $errorDictionary[2];
+                return false;
+            }
+        }
+
+        if (array_key_exists('node_id', $params) && $params['node_id'] == '') {
+            $jsonResponseStructure['error'] = $errorDictionary[1];
+            return false;
+        }
+
+        if (array_key_exists('page_num', $params) && $params['page_num'] != '' && !preg_replace( '/[^0-9]/', '', $params['page_num'])) {
+            $jsonResponseStructure['error'] = $errorDictionary[3];
+            return false;
+        }
+
+        return true;
     }
 }
 

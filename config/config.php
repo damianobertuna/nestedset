@@ -7,11 +7,8 @@ $host = "localhost";
 
 /* jsonResponseStructure */
 $jsonResponseStructure = array(
-    'nodes' => array(
-                  'node_id'         => '',
-                  'name'            => '',
-                  'children_count'  => '',
-              ),
+    'rootNodesNumber' => 0,
+    'nodes' => array(),
     'error' => ''
 );
 

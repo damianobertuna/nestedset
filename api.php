@@ -1,16 +1,16 @@
 <?php
 
+include("config/config.php");
 include("class/Database.php");
 include("class/nestedSet.php");
-include("class/databaseHelper.php");
-include("config/config.php");
+include("class/helperClass.php");
 
 /*header("Access-Control-Allow-Origin: *");
 header("Content-type: application/json; charset=UTF-8");*/
 
 $db = new Database($user, $password, $dbname, $host);
 $dbconn = $db->databaseConnection();
-$databaseHelper = new DatabaseHelper($dbconn);
+$helperClass = new helperClass($dbconn);
 
 /*if (!empty($dbconn)) {
     echo json_encode(array("response"=>"Database connection OK"));
@@ -21,12 +21,27 @@ $databaseHelper = new DatabaseHelper($dbconn);
     exit();
 }*/
 
-$idNode         = $_GET['idNode'];
-$language       = $_GET['language'];
-$searchKeyword  = $_GET['search_keyword'];
+$validateResponse = $helperClass->validateParams($_GET);
 
-$nestedObj = new nestedSet($dbconn, $databaseHelper);
-$jsonStructure = $nestedObj->Children($idNode, $language, $searchKeyword);
-echo "<pre>";
-var_dump($jsonStructure);
-echo "</pre>";
+if ($validateResponse === false) {
+    echo "<pre>";
+    var_dump($jsonResponseStructure);
+    echo "</pre>";
+} else {
+    $idNode         = intval($_GET['node_id']);
+    $language       = $_GET['language'];
+    $searchKeyword  = $_GET['search_keyword'];
+    $pageNum        = 0;
+    if (array_key_exists('page_num', $_GET) && $_GET['page_num'] != "") {
+        $pageNum    = intval($_GET['page_num']);
+    }
+    $pageSize       = 100;
+    if (array_key_exists('page_size', $_GET) && $_GET['page_size'] != "") {
+        $pageSize   = intval($_GET['page_size']);
+    }
+    $nestedObj = new nestedSet($dbconn, $helperClass);
+    $jsonStructure = $nestedObj->Children($idNode, $language, $searchKeyword, $pageNum, $pageSize);
+    echo "<pre>";
+    var_dump($jsonStructure);
+    echo "</pre>";
+}
