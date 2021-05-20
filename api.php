@@ -21,6 +21,9 @@ $helperClass = new helperClass($dbconn);
     exit();
 }*/
 
+/**
+ * richiamo il metodo per validare i parametri passati tramite GET
+ */
 $validateResponse = $helperClass->validateParams($_GET);
 
 if ($validateResponse === false) {
@@ -28,17 +31,7 @@ if ($validateResponse === false) {
     var_dump($jsonResponseStructure);
     echo "</pre>";
 } else {
-    $idNode         = intval($_GET['node_id']);
-    $language       = $_GET['language'];
-    $searchKeyword  = $_GET['search_keyword'];
-    $pageNum        = 0;
-    if (array_key_exists('page_num', $_GET) && $_GET['page_num'] != "") {
-        $pageNum    = intval($_GET['page_num']);
-    }
-    $pageSize       = 100;
-    if (array_key_exists('page_size', $_GET) && $_GET['page_size'] != "") {
-        $pageSize   = intval($_GET['page_size']);
-    }
+    $helperClass->setParams($_GET);
     $nestedObj = new nestedSet($dbconn, $helperClass);
     $jsonStructure = $nestedObj->Children($idNode, $language, $searchKeyword, $pageNum, $pageSize);
     echo "<pre>";

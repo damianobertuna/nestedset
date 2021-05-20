@@ -21,14 +21,14 @@ class helperClass
     }
 
     /** Questo metodo dati i seguenti parametri ritorna i figli di un dato nodo parent
-     * @param $idNode
-     * @param $language
-     * @param $searchKeyword
-     * @param $pageNum
-     * @param $pageSize
+     * @param int $idNode
+     * @param string $language
+     * @param string $searchKeyword
+     * @param int $pageNum
+     * @param int $pageSize
      * @return bool|mysqli_result
      */
-    public function getChildren($idNode, $language, $searchKeyword, $pageNum, $pageSize)
+    public function getChildren(int $idNode, string $language, string $searchKeyword, int $pageNum, int $pageSize)
     {
         $query = 'SELECT Child.idNode, Child.iLeft, Child.iRight, ntn.nodeName, Child.level level 
 FROM node_tree Child 
@@ -36,19 +36,27 @@ FROM node_tree Child
 WHERE Child.level = Parent.level + 1 
   AND Child.iLeft > Parent.iLeft 
   AND Child.iRight < Parent.iRight 
-  AND Parent.idNode = '.$idNode.' 
-  AND ntn.language = "'.$language.'"';
+  AND Parent.idNode = ? 
+  AND ntn.language = ?';
 
         if ($searchKeyword != '') {
-            $query .= ' AND LOWER(ntn.nodeName) LIKE "%'.strtolower($searchKeyword).'%"';
+            $searchKeyword = '%'.$searchKeyword.'%';
+            $query .= ' AND LOWER(ntn.nodeName) LIKE ?';
         }
         $startingNode = $pageNum;
         if ($pageNum != 0) {
             $startingNode = $pageNum + $pageSize;
         }
-        $query .= " LIMIT ".$startingNode.", ".$pageSize;
+        $query .= ' LIMIT ?, ?';
 
-        $resNodes = mysqli_query($this->dbconn, $query);
+        $stmt = $this->dbconn->prepare($query);
+        if ($searchKeyword != '') {
+            $stmt->bind_param("issii", $idNode, $language, $searchKeyword, $startingNode, $pageSize);
+        } else {
+            $stmt->bind_param("isii", $idNode, $language, $startingNode, $pageSize);
+        }
+        $stmt->execute();
+        $resNodes = $stmt->get_result();
         return $resNodes;
     }
 
@@ -75,6 +83,9 @@ WHERE Child.level = Parent.level + 1
         global $jsonResponseStructure;
         $mandatoryParams = array('node_id', 'language');
 
+        /**
+         * verifico se qualche parametro required è mancante (node_id e language)
+         */
         foreach ($mandatoryParams as $mandatory) {
             if (!array_key_exists($mandatory, $params)) {
                 $jsonResponseStructure['error'] = $errorDictionary[2];
@@ -82,17 +93,45 @@ WHERE Child.level = Parent.level + 1
             }
         }
 
+        /**
+         * node_id non può essere vuoto
+         */
         if (array_key_exists('node_id', $params) && $params['node_id'] == '') {
             $jsonResponseStructure['error'] = $errorDictionary[1];
             return false;
         }
 
+        /**
+         * page_num può solo essere un numero, uso una regex per verificarlo
+         */
         if (array_key_exists('page_num', $params) && $params['page_num'] != '' && !preg_replace( '/[^0-9]/', '', $params['page_num'])) {
             $jsonResponseStructure['error'] = $errorDictionary[3];
             return false;
         }
 
         return true;
+    }
+
+    public function setParams($params) {
+        global $idNode;
+        global $language;
+        global $searchKeyword;
+        global $pageNum;
+        global $pageSize;
+
+        $idNode         = intval($params['node_id']);
+        $language       = $params['language'];
+        $searchKeyword  = $params['search_keyword'];
+        $pageNum        = 0;
+        if (array_key_exists('page_num', $params) && $params['page_num'] != "" && preg_replace( '/[^0-9]/', '', $params['page_num'])) {
+            $pageNum    = intval($params['page_num']);
+        }
+        $pageSize       = 100;
+        if (array_key_exists('page_size', $params) && $params['page_size'] != "" && preg_replace( '/[^0-9]/', '', $params['page_size'])) {
+            $pageSize   = intval($params['page_size']);
+        }
+
+        return;
     }
 }
 

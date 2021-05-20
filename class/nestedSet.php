@@ -19,7 +19,8 @@ class nestedSet
         $this->helperClass = $helperClass;
     }
 
-    /** Questo metodo dato un idNode parent ed i parametri per filtrare la ricerca ritorna un json con i dati necessari da restituire
+    /** Questo metodo dato un idNode parent ed i parametri per filtrare la
+     *  ricerca, ritorna un json con i dati dei nodi da restituire
      * @param int $idNode
      * @param string $language
      * @param string $searchKeyword
@@ -29,8 +30,8 @@ class nestedSet
      */
     public function Children(int $idNode, string $language, string $searchKeyword, int $pageNum, int $pageSize)
     {
-        $nodeLevel = $this->getNodeLevel($idNode);
-        $language = mysqli_real_escape_string($this->dbconn, $language);
+        // recupero il level del dato nodo
+        //$nodeLevel = $this->getNodeLevel($idNode);
 
         $resNodes = $this->helperClass->getChildren($idNode, $language, $searchKeyword, $pageNum, $pageSize);
 
@@ -68,17 +69,17 @@ class nestedSet
         return $jsonChildrenStructure;
     }
 
-    /**
+    /** Questo metodo ritorna il livello di un dato nodo
      * @param $idNode
      * @return mixed|string
      */
-    private function getNodeLevel($idNode)
+    /*private function getNodeLevel($idNode)
     {
         $query = "SELECT level FROM node_tree WHERE idNode = ".intval($idNode);
         $resLevel = mysqli_query($this->dbconn, $query);
         $resLevel = mysqli_fetch_assoc($resLevel);
         return $resLevel['level'];
-    }
+    }*/
 
 }
 

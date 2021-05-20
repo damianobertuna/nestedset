@@ -5,8 +5,9 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="0401f591-8f4f-44df-bd9d-3d3b1445ac0f" name="Default Changelist" comment="">
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/api.php" beforeDir="false" afterPath="$PROJECT_DIR$/api.php" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/class/databaseHelper.php" beforeDir="false" afterPath="$PROJECT_DIR$/class/helperClass.php" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/class/helperClass.php" beforeDir="false" afterPath="$PROJECT_DIR$/class/helperClass.php" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/class/nestedSet.php" beforeDir="false" afterPath="$PROJECT_DIR$/class/nestedSet.php" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/config/config.php" beforeDir="false" afterPath="$PROJECT_DIR$/config/config.php" afterDir="false" />
     </list>
@@ -15,7 +16,7 @@
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
     <option name="LAST_RESOLUTION" value="IGNORE" />
   </component>
-  <component name="ComposerSettings" synchronizationState="SYNCHRONIZE">
+  <component name="ComposerSettings" notifyAboutMissingVendor="false" synchronizationState="SYNCHRONIZE">
     <pharConfigPath>$PROJECT_DIR$/nested-set-version1/composer.json</pharConfigPath>
     <execution />
   </component>
@@ -30,7 +31,6 @@
       <filtered-out-file-type name="COMMIT_BY_MESSAGE" />
     </file-type-list>
   </component>
-  <component name="PhpDebugGeneral" listening_started="true" />
   <component name="PhpServers">
     <servers>
       <server host="localhost" id="95edeb8e-8a84-4978-b1a2-e82aa9a7a35a" name="localhost" />
@@ -84,7 +84,7 @@
       <option name="presentableId" value="Default" />
       <updated>1621360222916</updated>
       <workItem from="1621360224124" duration="5622000" />
-      <workItem from="1621421923641" duration="14218000" />
+      <workItem from="1621421923641" duration="20622000" />
     </task>
     <servers />
   </component>
@@ -101,21 +101,5 @@
         </entry>
       </map>
     </option>
-  </component>
-  <component name="XDebuggerManager">
-    <breakpoint-manager>
-      <breakpoints>
-        <line-breakpoint enabled="true" type="php">
-          <url>file://$PROJECT_DIR$/class/helperClass.php</url>
-          <line>75</line>
-          <option name="timeStamp" value="29" />
-        </line-breakpoint>
-        <line-breakpoint enabled="true" type="php">
-          <url>file://$PROJECT_DIR$/class/helperClass.php</url>
-          <line>94</line>
-          <option name="timeStamp" value="30" />
-        </line-breakpoint>
-      </breakpoints>
-    </breakpoint-manager>
   </component>
 </project>

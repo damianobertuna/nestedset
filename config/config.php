@@ -5,14 +5,27 @@ $password = "1234qwer";
 $dbname = "nestedset";
 $host = "localhost";
 
-/* jsonResponseStructure */
+/**
+ * jsonResponseStructure
+ */
 $jsonResponseStructure = array(
     'rootNodesNumber' => 0,
     'nodes' => array(),
     'error' => ''
 );
 
-/* Error dictionary */
+/**
+ * variabili che saranno riempite con i parametri della richiesta
+ */
+$idNode         = 0;
+$language       = "";
+$searchKeyword  = "";
+$pageNum        = 0;
+$pageSize       = 100;
+
+/**
+ * Error dictionary
+ */
 $errorDictionary = array(
     1 => 'Invalid node id',
     2 => 'Missing mandatory params',
