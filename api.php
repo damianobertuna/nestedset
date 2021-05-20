@@ -5,21 +5,19 @@ include("class/Database.php");
 include("class/nestedSet.php");
 include("class/helperClass.php");
 
-/*header("Access-Control-Allow-Origin: *");
-header("Content-type: application/json; charset=UTF-8");*/
+header("Access-Control-Allow-Origin: *");
+header("Content-type: application/json; charset=UTF-8");
 
 $db = new Database($user, $password, $dbname, $host);
 $dbconn = $db->databaseConnection();
-$helperClass = new helperClass($dbconn);
 
-/*if (!empty($dbconn)) {
-    echo json_encode(array("response"=>"Database connection OK"));
-    //echo "Database connection OK";
-} else {
+if (empty($dbconn)) {
     echo json_encode($jsonResponseStructure['error'] = "Problems connecting to database");
-    //echo "Problems connecting to database";
+    echo "Problems connecting to database";
     exit();
-}*/
+}
+
+$helperClass = new helperClass($dbconn);
 
 /**
  * richiamo il metodo per validare i parametri passati tramite GET
@@ -27,14 +25,10 @@ $helperClass = new helperClass($dbconn);
 $validateResponse = $helperClass->validateParams($_GET);
 
 if ($validateResponse === false) {
-    echo "<pre>";
-    var_dump($jsonResponseStructure);
-    echo "</pre>";
+    echo $jsonResponseStructure;
 } else {
     $helperClass->setParams($_GET);
     $nestedObj = new nestedSet($dbconn, $helperClass);
     $jsonStructure = $nestedObj->Children($idNode, $language, $searchKeyword, $pageNum, $pageSize);
-    echo "<pre>";
-    var_dump($jsonStructure);
-    echo "</pre>";
+    echo $jsonStructure;
 }

@@ -1,6 +1,9 @@
 <?php
-// Ensure reporting is setup correctly
+mysqli_report(MYSQLI_REPORT_STRICT);
 
+/**
+ * Class Database
+ */
 class Database
 {
     private $user;
@@ -10,30 +13,28 @@ class Database
 
     /**
      * Database constructor.
-     * @param $user
-     * @param $password
-     * @param $dbname
-     * @param $host
+     * @param string $user
+     * @param string $password
+     * @param string $dbname
+     * @param string $host
      */
-    public function __construct($user, $password, $dbname, $host)
+    public function __construct(string $user, string $password, string $dbname, string $host)
     {
         $this->user = $user;
         $this->password = $password;
         $this->dbname = $dbname;
         $this->host = $host;
-
     }
 
+    /**
+     * @return false|mysqli
+     */
     public function databaseConnection()
     {
-        mysqli_report(MYSQLI_REPORT_STRICT);
-
         try {
-            //$conn = mysqli_connect($this->host, $this->user, $this->password, $this->dbname);
             $conn = new mysqli($this->host, $this->user, $this->password, $this->dbname);
-        } catch (Exception $e) {
-            throw $e;
-            echo "Problem connecting to database: ".$e->getMessage();
+        } catch (mysqli_sql_exception $e) {
+            echo $e->getMessage();
             return false;
         }
         return $conn;

@@ -10,10 +10,10 @@ class nestedSet
 
     /**
      * nestedSet constructor.
-     * @param $dbconn
+     * @param mysqli $dbconn
      * @param helperClass $helperClass
      */
-    public function __construct($dbconn, helperClass $helperClass)
+    public function __construct(mysqli $dbconn, helperClass $helperClass)
     {
         $this->dbconn = $dbconn;
         $this->helperClass = $helperClass;
@@ -26,73 +26,60 @@ class nestedSet
      * @param string $searchKeyword
      * @param int $pageNum
      * @param int $pageSize
-     * @return array
+     * @return false|string
      */
     public function Children(int $idNode, string $language, string $searchKeyword, int $pageNum, int $pageSize)
     {
         global $jsonResponseStructure;
+        /*
+        * l'array verrà rimpito con i dati relativi ai nodi figli trovati
+        */
+        $jsonChildrenStructure = array();
 
+        /*
+         * recupero i figli del nodo passato tramite GET
+         */
         $resNodes = $this->helperClass->getChildren($idNode, $language, $searchKeyword, $pageNum, $pageSize);
 
-        $jsonChildrenStructure = array();
+        /*
+         * calcolo il numero di figli del nodo passato tramite GET
+         */
         $rootChildNumber = $this->helperClass->childrenCount($idNode);
+
+        /*
+         * salvo nella struttura da ritornare il numero di figli del nodo root passato
+         */
         $jsonResponseStructure['rootNodesNumber'] = $rootChildNumber;
 
         if ($resNodes) {
             if ($resNodes->num_rows) {
+                /*
+                 * metodo che ritorna i dati dei nodi figli
+                 */
                 $jsonChildrenStructure = $this->fillJsonChildrenStructure($resNodes);
             }
         }
 
         $jsonResponseStructure['nodes'] = $jsonChildrenStructure;
-
-        //return json_encode($jsonStructure);
-        return $jsonResponseStructure;
+        return json_encode($jsonResponseStructure);
     }
 
-    /**
-     * @param $resNodes
+    /** metodo che crea e ritorna un array con i dati dei nodi trovati
+     * @param mysqli_result $resNodes
      * @return array
      */
-    private function fillJsonChildrenStructure($resNodes) {
+    private function fillJsonChildrenStructure(mysqli_result $resNodes) {
+        $jsonChildrenStructure = array();
         while($row = mysqli_fetch_assoc($resNodes))
         {
             extract($row);
             $childrenCount = $this->helperClass->childrenCount($idNode);
             $jsonChildrenStructure[] = array(
                 'node_id'           => $idNode,
-                'name'              => $nodeName,
+                'name'              => utf8_encode($nodeName),
                 'children_count'    => $childrenCount,
             );
         }
         return $jsonChildrenStructure;
     }
-
-    /** Questo metodo ritorna il livello di un dato nodo
-     * @param $idNode
-     * @return mixed|string
-     */
-    /*private function getNodeLevel($idNode)
-    {
-        $query = "SELECT level FROM node_tree WHERE idNode = ".intval($idNode);
-        $resLevel = mysqli_query($this->dbconn, $query);
-        $resLevel = mysqli_fetch_assoc($resLevel);
-        return $resLevel['level'];
-    }*/
-
 }
-
-
-/*$query = "SELECT node.idNode as idNode, ntn.nodeName AS name, (COUNT(parent.idNode) - 1) as indent, node.level
-        FROM node_tree node LEFT JOIN node_tree_names ntn ON node.idNode = ntn.idNode, 
-        node_tree parent
-        WHERE node.iLeft BETWEEN parent.iLeft AND language = 'italian' AND parent.iRight  
-        GROUP BY ntn.nodeName
-        ORDER BY node.iLeft";*/
-        /*$query = 'SELECT ntn.nodeName name, node.idNode idNode, node.iLeft, node.iRight, (COUNT(parent.idNode) - 1) as indent
-    FROM node_tree node
-    LEFT JOIN node_tree_names ntn ON ntn.idNode = node.idNode,
-    node_tree parent
-    WHERE node.iLeft BETWEEN parent.iLeft AND parent.iRight
-    AND parent.idNode = '.intval($idNode).' AND ntn.language = \'italian\'
-    ORDER BY node.iLeft';*/
