@@ -45,9 +45,9 @@ WHERE Child.level = Parent.level + 1
         }
         $startingNode = $pageNum;
         if ($pageNum != 0) {
-            $startingNode = $pageNum + $pageSize;
+            $startingNode = (($pageNum - 1) * $pageSize + 1)-1;
         }
-        $query .= ' LIMIT ?, ?';
+        $query .= ' ORDER BY ntn.nodeName ASC LIMIT ?, ?';
 
         $stmt = $this->dbconn->prepare($query);
         if ($searchKeyword != '') {
@@ -83,7 +83,7 @@ WHERE Child.level = Parent.level + 1
         global $jsonResponseStructure;
         $mandatoryParams = array('node_id', 'language');
 
-        /**
+        /*
          * verifico se qualche parametro required è mancante (node_id e language)
          */
         foreach ($mandatoryParams as $mandatory) {
@@ -93,7 +93,7 @@ WHERE Child.level = Parent.level + 1
             }
         }
 
-        /**
+        /*
          * node_id non può essere vuoto
          */
         if (array_key_exists('node_id', $params) && $params['node_id'] == '') {
@@ -101,7 +101,7 @@ WHERE Child.level = Parent.level + 1
             return false;
         }
 
-        /**
+        /*
          * page_num può solo essere un numero, uso una regex per verificarlo
          */
         if (array_key_exists('page_num', $params) && $params['page_num'] != '' && !preg_replace( '/[^0-9]/', '', $params['page_num'])) {
@@ -109,9 +109,35 @@ WHERE Child.level = Parent.level + 1
             return false;
         }
 
+        /*
+         * page_size può solo essere un numero, uso una regex per verificarlo
+         */
+        if (array_key_exists('page_size', $params) && $params['page_size'] != '' && !preg_replace( '/[^0-9]/', '', $params['page_size'])) {
+            $jsonResponseStructure['error'] = $errorDictionary[4];
+            return false;
+        }
+
+        /*
+         * verifico se i dati page_num e page_size sono
+         * coerenti con i dati sul database
+         */
+        if ((array_key_exists('page_num', $params) && $params['page_num'] != '') &&
+            (array_key_exists('page_size', $params) && $params['page_size'] != '')) {
+            $idNode = $params["node_id"];
+            $pageNum = $params["page_num"];
+            $pageSize = $params["page_size"];
+            $paginationCheck = $this->checkPaginationData($idNode, $pageNum, $pageSize);
+            if (!$paginationCheck) {
+                return false;
+            }
+        }
         return true;
     }
 
+    /** Metodo usato per impostare le variabili
+     * globali con i dati forniti via GET
+     * @param $params
+     */
     public function setParams($params) {
         global $idNode;
         global $language;
@@ -130,9 +156,52 @@ WHERE Child.level = Parent.level + 1
         if (array_key_exists('page_size', $params) && $params['page_size'] != "" && preg_replace( '/[^0-9]/', '', $params['page_size'])) {
             $pageSize   = intval($params['page_size']);
         }
-
         return;
     }
+
+    /** Metodo usato per testare la coerenza dei parametri page_num e page_size
+     * in relazione all'node_id passato
+     * @param $idNode
+     * @param $pageNum
+     * @param $pageSize
+     */
+    private function checkPaginationData($idNode, $pageNum, $pageSize)
+    {
+        global $errorDictionary;
+        global $jsonResponseStructure;
+
+        /*
+         * cerco il numero di figli del nodo passato tramite la richiesta
+         */
+        $nodeChildrenNumber = $this->childrenCount($idNode);
+
+        /*
+         * se il numero di figli del nodo è minore o uguale
+         * a pageSize, allora potrò avere al più 1 pagina
+         */
+        if ($nodeChildrenNumber <= $pageSize) {
+            /*
+             * se pageNum è > 1 allora non è valido
+             */
+            if ($pageNum > 1) {
+                $jsonResponseStructure['error'] = $errorDictionary[3];
+                return false;
+            }
+        } else {
+            /*
+             * se invece il numero di figli è maggiore di pageSize
+             * il numero di pagine non può essere superiore alla
+             * parte intera della divisione tra numero di figli e pageSize
+             */
+            $maxPageNumber = intdiv($nodeChildrenNumber, $pageSize);
+            if ($pageNum > $maxPageNumber) {
+                $jsonResponseStructure['error'] = $errorDictionary[3];
+                return false;
+            }
+        }
+        return true;
+    }
+
 }
 
 /*
