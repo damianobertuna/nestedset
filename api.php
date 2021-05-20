@@ -17,6 +17,11 @@ if (empty($dbconn)) {
     exit();
 }
 
+/**
+ * Class helperClass - metodi helper per fare query al database
+ * e verificare parametri passati tramite GET
+ * e per fornire metodi utili all verifica della paginazione
+ */
 $helperClass = new helperClass($dbconn);
 
 /**
