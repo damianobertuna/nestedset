@@ -60,23 +60,39 @@ WHERE Child.level = Parent.level + 1
         return $resNodes;
     }
 
-    /** Questo metodo ritorna il numero di figli del dato idNode parent
+    /** Questo metodo ritorna il numero di nodi a partire dal dato idNode parent
      * @param $idNode
      * @return float|int
      */
     public function childrenCount($idNode)
     {
-        $query = "SELECT COUNT(t.idNode) AS Descendant
+        $query = 'SELECT p.idNode AS Parent, COUNT(c.idNode) AS Children
+                    FROM node_tree AS p
+                    JOIN node_tree AS c
+                      ON p.iLeft = (SELECT MAX(s.iLeft) FROM node_tree AS s
+                                       WHERE c.iLeft > s.iLeft AND c.iLeft < s.iRight)
+                    WHERE p.idNode = '.$idNode.'
+                    GROUP BY Parent';
+
+        /*$query = "SELECT COUNT(t.idNode) AS Descendant
                     FROM node_tree AS s
                       JOIN node_tree AS t ON s.iLeft < t.iLeft AND s.iRight > t.iRight
                       LEFT JOIN node_tree_names ntn ON s.idNode = ntn.idNode
-                    WHERE ntn.idNode = ".intval($idNode);
+                    WHERE ntn.idNode = ".intval($idNode);*/
         $childrenCount = mysqli_query($this->dbconn, $query);
         $childrenCount = mysqli_fetch_assoc($childrenCount);
-        $childrenCount = $childrenCount["Descendant"]/2;
+        if (isset($childrenCount["Children"])) {
+            $childrenCount = $childrenCount["Children"];
+        } else {
+            $childrenCount = 0;
+        }
         return $childrenCount;
     }
 
+    /** metodo usato per validare i parametri forniti tramite GET
+     * @param $params
+     * @return bool
+     */
     public function validateParams($params)
     {
         global $errorDictionary;
@@ -123,13 +139,15 @@ WHERE Child.level = Parent.level + 1
          */
         if ((array_key_exists('page_num', $params) && $params['page_num'] != '') &&
             (array_key_exists('page_size', $params) && $params['page_size'] != '')) {
-            $idNode = $params["node_id"];
-            $pageNum = $params["page_num"];
-            $pageSize = $params["page_size"];
-            $paginationCheck = $this->checkPaginationData($idNode, $pageNum, $pageSize);
-            if (!$paginationCheck) {
+            $idNode             = $params["node_id"];
+            $pageNum            = $params["page_num"];
+            $pageSize           = $params["page_size"];
+            $paginationCheck    = $this->checkPaginationData($idNode, $pageNum, $pageSize);
+            if ($paginationCheck === false) {
                 return false;
             }
+            $jsonResponseStructure['totalPage'] = $paginationCheck;
+            $jsonResponseStructure['currentPage'] = $pageNum;
         }
         return true;
     }
@@ -160,7 +178,7 @@ WHERE Child.level = Parent.level + 1
     }
 
     /** Metodo usato per testare la coerenza dei parametri page_num e page_size
-     * in relazione all'node_id passato
+     * in relazione al node_id passato
      * @param $idNode
      * @param $pageNum
      * @param $pageSize
@@ -179,6 +197,7 @@ WHERE Child.level = Parent.level + 1
          * se il numero di figli del nodo è minore o uguale
          * a pageSize, allora potrò avere al più 1 pagina
          */
+        $maxPageNumber = 1;
         if ($nodeChildrenNumber <= $pageSize) {
             /*
              * se pageNum è > 1 allora non è valido
@@ -193,13 +212,14 @@ WHERE Child.level = Parent.level + 1
              * il numero di pagine non può essere superiore alla
              * parte intera della divisione tra numero di figli e pageSize
              */
-            $maxPageNumber = intdiv($nodeChildrenNumber, $pageSize);
+            //$maxPageNumber = intdiv($nodeChildrenNumber, $pageSize);
+            $maxPageNumber = ceil($nodeChildrenNumber/$pageSize);
             if ($pageNum > $maxPageNumber) {
                 $jsonResponseStructure['error'] = $errorDictionary[3];
                 return false;
             }
         }
-        return true;
+        return $maxPageNumber;
     }
 
 }

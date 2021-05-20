@@ -11,6 +11,8 @@ $host = "localhost";
 $jsonResponseStructure = array(
     'rootNodesNumber' => 0,
     'nodes' => array(),
+    'totalPage' => 0,
+    'currentPage' => 0,
     'error' => ''
 );
 

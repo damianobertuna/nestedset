@@ -30,8 +30,7 @@ class nestedSet
      */
     public function Children(int $idNode, string $language, string $searchKeyword, int $pageNum, int $pageSize)
     {
-        // recupero il level del dato nodo
-        //$nodeLevel = $this->getNodeLevel($idNode);
+        global $jsonResponseStructure;
 
         $resNodes = $this->helperClass->getChildren($idNode, $language, $searchKeyword, $pageNum, $pageSize);
 
