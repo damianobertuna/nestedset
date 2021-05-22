@@ -53,26 +53,20 @@ WHERE Child.level = Parent.level + 1
   AND Parent.idNode = ? 
   AND ntn.language = ?';
 
-        /*
-         * se il parametro search_keyword non è vuoto allora filtro
-         */
+        /* se il parametro search_keyword non è vuoto allora filtro */
         if ($searchKeyword != '') {
             $searchKeyword = '%'.$searchKeyword.'%';
             $query .= ' AND LOWER(ntn.nodeName) LIKE ?';
         }
 
-        /*
-         * calcolo i valori per LIMIT e OFFSET relativi alla paginazione
-         */
+        /* calcolo i valori per LIMIT e OFFSET relativi alla paginazione */
         $startingNode = $pageNum;
         if ($pageNum != 0) {
             $startingNode = (($pageNum - 1) * $pageSize + 1)-1;
         }
         $query .= ' ORDER BY ntn.nodeName ASC LIMIT ?, ?';
 
-        /*
-         * faccio il bind dei parametri per la query
-         */
+        /* faccio il bind dei parametri per la query */
         $stmt = $this->dbconn->prepare($query);
         if ($searchKeyword != '') {
             $stmt->bind_param("issii", $idNode, $language, $searchKeyword, $startingNode, $pageSize);
@@ -80,8 +74,7 @@ WHERE Child.level = Parent.level + 1
             $stmt->bind_param("isii", $idNode, $language, $startingNode, $pageSize);
         }
         $stmt->execute();
-        $resNodes = $stmt->get_result();
-        return $resNodes;
+        return $stmt->get_result();
     }
 
     /** Questo metodo ritorna il numero di nodi figli a partire dal dato idNode parent
@@ -95,11 +88,14 @@ WHERE Child.level = Parent.level + 1
                     JOIN node_tree AS c
                       ON p.iLeft = (SELECT MAX(s.iLeft) FROM node_tree AS s
                                        WHERE c.iLeft > s.iLeft AND c.iLeft < s.iRight)
-                    WHERE p.idNode = '.$idNode.'
+                    WHERE p.idNode = ?
                     GROUP BY Parent';
 
-        $childrenCount = mysqli_query($this->dbconn, $query);
-        $childrenCount = mysqli_fetch_assoc($childrenCount);
+        $stmt = $this->dbconn->prepare($query);
+        $stmt->bind_param("i", $idNode);
+        $stmt->execute();
+        $childrenCount = $stmt->get_result();
+        $childrenCount = $childrenCount->fetch_assoc();
         if (isset($childrenCount["Children"])) {
             $childrenCount = $childrenCount["Children"];
         } else {

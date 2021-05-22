@@ -23,8 +23,8 @@ class nestedSet
     }
 
 
-    /** Questo metodo dato un idNode parent ed i parametri per filtrare la
-     *  ricerca, ritorna un json con i dati dei nodi da restituire
+    /** Questo metodo ritorna un json con i dati dei nodi da restituire
+     * filtrati in base ai parametri della get
      * * @return false|string
      */
     public function Children()
@@ -35,6 +35,9 @@ class nestedSet
         $pageNum                = $this->requestData->getPageNum();
         $pageSize               = $this->requestData->getPageSize();
 
+        /* verifico tramite questo metodo che i parametri page_num e page_size
+         * passati siano coerenti con il numero di figli del nodo idNode
+         * se non è così lancio una eccezione */
         try {
             $totalPage = $this->checkPaginationData($idNode, $pageNum, $pageSize);
             $this->responseObj->setTotalPage($totalPage);
@@ -44,35 +47,28 @@ class nestedSet
 
         $this->responseObj->setCurrentPage($pageNum);
 
-        /*
-         * recupero i figli del nodo passato tramite GET
-         */
+        /* trovo i figli del nodo passato tramite GET */
         $resNodes = $this->db->getChildren($idNode, $language, $searchKeyword, $pageNum, $pageSize);
 
-        /*
-         * calcolo il numero di figli del nodo passato tramite GET
-         */
+        /* calcolo il numero di figli del nodo passato tramite GET */
         $rootChildNumber = $this->db->childrenCount($idNode);
 
-        /*
-         * salvo nella struttura da ritornare il numero di figli del nodo root passato
-         */
+        /* salvo nella struttura da ritornare il numero di figli del nodo root passato */
         $this->responseObj->setRootNodesNumber($rootChildNumber);
 
-        /*
-        * l'array verrà rimpito con i dati relativi ai nodi figli trovati
-        */
+        /* l'array verrà rimpito con i dati relativi ai nodi figli trovati */
         $jsonChildrenStructure = array();
         if ($resNodes) {
             if ($resNodes->num_rows) {
-                /*
-                 * metodo che ritorna i dati dei nodi figli
-                 */
+                /* metodo che ritorna un array con i dati dei nodi figli */
                 $jsonChildrenStructure = $this->fillJsonChildrenStructure($resNodes);
             }
         }
 
         $this->responseObj->setNodes($jsonChildrenStructure);
+
+        /* richiesto la struttura da ritornare all'oggetto responseObj
+         * viene convertita in json dal metodo toJson */
         $response = $this->responseObj->getStructure();
         return $this->responseObj->toJson($response);
     }
@@ -106,35 +102,29 @@ class nestedSet
      */
     private function checkPaginationData(int $idNode, int $pageNum, int $pageSize)
     {
-        /*
-         * calcolo il numero di figli del nodo passato tramite la richiesta
-         */
+        /* calcolo il numero di figli del nodo passato tramite la richiesta */
         $nodeChildrenNumber = $this->db->childrenCount($idNode);
 
         $maxPageNumber = 1;
-        /*
-         * se il numero di figli del nodo è minore o uguale
-         * a pageSize passato, allora potrò avere al più 1 pagina
-         */
+        /* se il numero di figli del nodo è minore o uguale
+         * a pageSize passato, allora potrò avere al più 1 pagina */
         if ($nodeChildrenNumber <= $pageSize) {
-            /*
-             * se pageNum è > 1 allora la richiesta non è valida
-             */
+            /* se pageNum è > 1 allora la richiesta non è valida e scateno una eccezione */
             if ($pageNum > 1) {
                 throw new Exception($this->requestData->getErrorMessage('invalid_page_num'));
             }
         } else {
-            /*
-             * se invece il numero di figli è maggiore di pageSize
+            /* se invece il numero di figli è maggiore di pageSize
              * il numero di pagine non può essere superiore al
              * risultato della divisione tra numero di figli e pageSize
-             * arrotondato all'intero superiore
-             */
+             * arrotondato all'intero superiore */
             $maxPageNumber = ceil($nodeChildrenNumber/$pageSize);
             if ($pageNum > $maxPageNumber) {
                 throw new Exception($this->requestData->getErrorMessage('invalid_page_num'));
             }
         }
+
+        /* se non ci sono eccezzioni ritorno il numero di pagine calcolato */
         return $maxPageNumber;
     }
 }
