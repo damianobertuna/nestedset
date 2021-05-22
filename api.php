@@ -10,7 +10,6 @@ header("Content-type: application/json; charset=UTF-8");
 
 $db = new Database($user, $password, $dbname, $host);
 
-$jsonResponseStructure      = $jsonStructureObj->getStructure();*/
 $responseObj                = new responseClass(0, array(), 0, 0, "");
 $requestData                = new requestData($_GET, $responseObj);
 $nestedObj                  = new nestedSet($db, $requestData, $responseObj);
