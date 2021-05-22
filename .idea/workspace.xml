@@ -5,15 +5,21 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="0401f591-8f4f-44df-bd9d-3d3b1445ac0f" name="Default Changelist" comment="">
+      <change afterPath="$PROJECT_DIR$/class/requestData.php" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/class/responseClass.php" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/api.php" beforeDir="false" afterPath="$PROJECT_DIR$/api.php" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/class/database.php" beforeDir="false" afterPath="$PROJECT_DIR$/class/database.php" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/class/helperClass.php" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/class/nestedSet.php" beforeDir="false" afterPath="$PROJECT_DIR$/class/nestedSet.php" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/config/config.php" beforeDir="false" afterPath="$PROJECT_DIR$/config/config.php" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
     <option name="LAST_RESOLUTION" value="IGNORE" />
   </component>
-  <component name="ComposerSettings" notifyAboutMissingVendor="false" synchronizationState="SYNCHRONIZE">
+  <component name="ComposerSettings" doNotAsk="true" notifyAboutMissingVendor="false" synchronizationState="SYNCHRONIZE">
     <pharConfigPath>$PROJECT_DIR$/nested-set-version1/composer.json</pharConfigPath>
     <execution />
   </component>
@@ -45,8 +51,9 @@
     <property name="RunOnceActivity.OpenProjectViewOnStart" value="true" />
     <property name="RunOnceActivity.ShowReadmeOnStart" value="true" />
     <property name="WebServerToolWindowFactoryState" value="false" />
-    <property name="last_opened_file_path" value="$PROJECT_DIR$/../../php/php.ini" />
-    <property name="settings.editor.selected.configurable" value="preferences.lookFeel" />
+    <property name="last_opened_file_path" value="$PROJECT_DIR$" />
+    <property name="nodejs_package_manager_path" value="npm" />
+    <property name="settings.editor.selected.configurable" value="web-ide.project.structure" />
     <property name="vue.rearranger.settings.migration" value="true" />
   </component>
   <component name="RecentsManager">
@@ -81,7 +88,11 @@
       <option name="presentableId" value="Default" />
       <updated>1621360222916</updated>
       <workItem from="1621360224124" duration="5622000" />
-      <workItem from="1621421923641" duration="33140000" />
+      <workItem from="1621421923641" duration="34587000" />
+      <workItem from="1621589616782" duration="5235000" />
+      <workItem from="1621605189312" duration="12671000" />
+      <workItem from="1621619321372" duration="7868000" />
+      <workItem from="1621664197562" duration="6301000" />
     </task>
     <servers />
   </component>
@@ -98,5 +109,27 @@
         </entry>
       </map>
     </option>
+    <option name="oldMeFiltersMigrated" value="true" />
+  </component>
+  <component name="XDebuggerManager">
+    <breakpoint-manager>
+      <breakpoints>
+        <line-breakpoint enabled="true" type="php">
+          <url>file://$PROJECT_DIR$/class/nestedSet.php</url>
+          <line>76</line>
+          <option name="timeStamp" value="27" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" type="php">
+          <url>file://$PROJECT_DIR$/api.php</url>
+          <line>17</line>
+          <option name="timeStamp" value="29" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" type="php">
+          <url>file://$PROJECT_DIR$/class/nestedSet.php</url>
+          <line>137</line>
+          <option name="timeStamp" value="34" />
+        </line-breakpoint>
+      </breakpoints>
+    </breakpoint-manager>
   </component>
 </project>

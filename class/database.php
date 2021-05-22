@@ -10,6 +10,7 @@ class Database
     private $password;
     private $dbname;
     private $host;
+    private $dbconn;
 
     /**
      * Database constructor.
@@ -24,19 +25,85 @@ class Database
         $this->password = $password;
         $this->dbname = $dbname;
         $this->host = $host;
-    }
-
-    /**
-     * @return false|mysqli
-     */
-    public function databaseConnection()
-    {
         try {
             $conn = new mysqli($this->host, $this->user, $this->password, $this->dbname);
+            $this->dbconn = $conn;
         } catch (mysqli_sql_exception $e) {
             echo $e->getMessage();
-            return false;
         }
-        return $conn;
+    }
+
+    /** Questo metodo dati i seguenti parametri ritorna i figli di un dato nodo parent
+     * @param int $idNode
+     * @param string $language
+     * @param string $searchKeyword
+     * @param int $pageNum
+     * @param int $pageSize
+     * @return bool|mysqli_result
+     */
+    public function getChildren(int $idNode, string $language, string $searchKeyword, int $pageNum, int $pageSize)
+    {
+        $query = 'SELECT Child.idNode, Child.iLeft, Child.iRight, ntn.nodeName, Child.level level 
+FROM node_tree Child 
+    LEFT JOIN node_tree_names ntn ON ntn.idNode = Child.idNode,  node_tree Parent 
+WHERE Child.level = Parent.level + 1 
+  AND Child.iLeft > Parent.iLeft 
+  AND Child.iRight < Parent.iRight 
+  AND Parent.idNode = ? 
+  AND ntn.language = ?';
+
+        /*
+         * se il parametro search_keyword non è vuoto allora filtro
+         */
+        if ($searchKeyword != '') {
+            $searchKeyword = '%'.$searchKeyword.'%';
+            $query .= ' AND LOWER(ntn.nodeName) LIKE ?';
+        }
+
+        /*
+         * calcolo i valori per LIMIT e OFFSET relativi alla paginazione
+         */
+        $startingNode = $pageNum;
+        if ($pageNum != 0) {
+            $startingNode = (($pageNum - 1) * $pageSize + 1)-1;
+        }
+        $query .= ' ORDER BY ntn.nodeName ASC LIMIT ?, ?';
+
+        /*
+         * faccio il bind dei parametri per la query
+         */
+        $stmt = $this->dbconn->prepare($query);
+        if ($searchKeyword != '') {
+            $stmt->bind_param("issii", $idNode, $language, $searchKeyword, $startingNode, $pageSize);
+        } else {
+            $stmt->bind_param("isii", $idNode, $language, $startingNode, $pageSize);
+        }
+        $stmt->execute();
+        $resNodes = $stmt->get_result();
+        return $resNodes;
+    }
+
+    /** Questo metodo ritorna il numero di nodi figli a partire dal dato idNode parent
+     * @param int $idNode
+     * @return float|int
+     */
+    public function childrenCount(int $idNode)
+    {
+        $query = 'SELECT p.idNode AS Parent, COUNT(c.idNode) AS Children
+                    FROM node_tree AS p
+                    JOIN node_tree AS c
+                      ON p.iLeft = (SELECT MAX(s.iLeft) FROM node_tree AS s
+                                       WHERE c.iLeft > s.iLeft AND c.iLeft < s.iRight)
+                    WHERE p.idNode = '.$idNode.'
+                    GROUP BY Parent';
+
+        $childrenCount = mysqli_query($this->dbconn, $query);
+        $childrenCount = mysqli_fetch_assoc($childrenCount);
+        if (isset($childrenCount["Children"])) {
+            $childrenCount = $childrenCount["Children"];
+        } else {
+            $childrenCount = 0;
+        }
+        return $childrenCount;
     }
 }
