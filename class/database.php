@@ -30,6 +30,7 @@ class Database
             $this->dbconn = $conn;
         } catch (mysqli_sql_exception $e) {
             echo $e->getMessage();
+            die();
         }
     }
 

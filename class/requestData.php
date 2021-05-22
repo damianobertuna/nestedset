@@ -22,6 +22,7 @@ class requestData
             $this->responseObj->setError($e->getMessage());
             $response = $this->responseObj->getStructure();
             echo $this->responseObj->toJson($response);
+            die();
         }
     }
 
