@@ -1,6 +1,7 @@
 <?php
 include("config/config.php");
 include("class/Database.php");
+include("class/requestException.php");
 include("class/requestData.php");
 include("class/responseClass.php");
 include("class/nestedSet.php");
@@ -26,7 +27,7 @@ try {
     $response       = $nestedObj->findChildren();
 
     echo $response;
-} catch (Exception $e) {
-    echo $e->getMessage();
+} catch (requestException $e) {
+    echo $e->errorMessage();
 }
 

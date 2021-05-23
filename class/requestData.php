@@ -19,9 +19,7 @@ class requestData
             $this->validateParams($params);
             $this->setParams($params);
         } catch (Exception $e) {
-            $this->responseObj->setError($e->getMessage());
-            $response = $this->responseObj->getStructure();
-            throw new Exception($this->responseObj->toJson($response));            
+            throw new requestException($e->getMessage());
         }
     }
 
