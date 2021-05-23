@@ -24,6 +24,6 @@ in base agli altri parametri di filtro (language, search_keyword, page_num e pag
 $nestedObj                  = new nestedSet($db, $requestData, $responseObj);
 
 /* il metodo children cerca i nodi figli e ritorna la stringa json creata*/
-$response                   = $nestedObj->Children();
+$response                   = $nestedObj->findChildren();
 
 echo $response;

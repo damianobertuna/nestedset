@@ -27,7 +27,7 @@ class nestedSet
      * filtrati in base ai parametri della get
      * * @return false|string
      */
-    public function Children()
+    public function findChildren()
     {
         $idNode                 = $this->requestData->getIdNode();
         $language               = $this->requestData->getLanguage();
