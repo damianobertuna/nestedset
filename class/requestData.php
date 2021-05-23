@@ -21,8 +21,7 @@ class requestData
         } catch (Exception $e) {
             $this->responseObj->setError($e->getMessage());
             $response = $this->responseObj->getStructure();
-            echo $this->responseObj->toJson($response);
-            die();
+            throw new Exception($this->responseObj->toJson($response));            
         }
     }
 

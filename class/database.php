@@ -29,8 +29,7 @@ class Database
             $conn = new mysqli($this->host, $this->user, $this->password, $this->dbname);
             $this->dbconn = $conn;
         } catch (mysqli_sql_exception $e) {
-            echo $e->getMessage();
-            die();
+            throw new Exception($e->getMessage());
         }
     }
 

@@ -42,7 +42,7 @@ class nestedSet
             $totalPage = $this->checkPaginationData($idNode, $pageNum, $pageSize);
             $this->responseObj->setTotalPage($totalPage);
         } catch (Exception $e) {
-            return $e->getMessage();
+            throw new Exception($e->getMessage());
         }
 
         $this->responseObj->setCurrentPage($pageNum);
