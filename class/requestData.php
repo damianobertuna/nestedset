@@ -48,7 +48,7 @@ class requestData
         }
 
         /*
-         * language deve essere o itaian o english
+         * language deve essere o italian o english
          */
         $allowedLanguages = array('italian', 'english');
         if (!in_array($params['language'], $allowedLanguages)) {
@@ -74,18 +74,14 @@ class requestData
         return true;
     }
 
-    /** Metodo usato per impostare le variabili
-     * globali con i dati forniti via GET
+    /** Metodo usato per settare le proprietà che serviranno per cercare i nodi e filtrarli
      * @param array $params
      */
     public function setParams(array $params) {
-        /*
-         * inizializzo le variabili globali definite in config.php
-         * con i valori passati tramite get precedentemente validati
-         */
         $this->idNode           = $params['node_id'];
         $this->language         = $params['language'];
         $this->searchKeyword    = "";
+        
         if (array_key_exists('search_keyword', $params) && $params['search_keyword']) {
             $this->searchKeyword = $params['search_keyword'];
         }
@@ -93,7 +89,7 @@ class requestData
         /*
          * valore di default
          */
-        $this->pageNum          = 1;
+        $this->pageNum          = 0;
         if (array_key_exists('page_num', $params) && $params['page_num'] != "" && preg_replace( '/[^0-9]/', '', $params['page_num'])) {
             $this->pageNum      = intval($params['page_num']);
         }

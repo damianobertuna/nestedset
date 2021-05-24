@@ -8,7 +8,10 @@ $exampleRequests = array(
 "Missing mandatory params (language)"       => "http://localhost/nestedset/api.php?node_id=5",
 "Missing mandatory params (node_id)"        => "http://localhost/nestedset/api.php?language=italian",
 "Invalid page number"                       => "http://localhost/nestedset/api.php?node_id=5&language=italian&search_keyword=&page_num=123&page_size=123",
-"Invalid page size (not a number)"          => "http://localhost/nestedset/api.php?node_id=5&language=italian&search_keyword=&page_num=2&page_size=ddd"
+"Invalid page size (not a number)"          => "http://localhost/nestedset/api.php?node_id=5&language=italian&search_keyword=&page_num=2&page_size=ddd",
+"Correct data provided"                     => "http://localhost/nestedset/api.php?node_id=5&language=italian&search_keyword=&page_num=&page_size=",
+"Search keyword provided"                   => "http://localhost/nestedset/api.php?node_id=5&language=italian&search_keyword=supp&page_num=&page_size=",
+"Correct pagination provided"               => "http://localhost/nestedset/api.php?node_id=5&language=italian&search_keyword=&page_num=1&page_size=4"
 );
 
 foreach ($exampleRequests as $requestName => $url) {

@@ -24,8 +24,8 @@ class nestedSet
 
 
     /** Questo metodo ritorna un json con i dati dei nodi da restituire
-     * filtrati in base ai parametri della get
-     * * @return false|string
+     *  filtrati in base ai parametri della GET
+     *  @return false|string
      */
     public function findChildren()
     {
@@ -56,7 +56,7 @@ class nestedSet
         /* salvo nella struttura da ritornare il numero di figli del nodo root passato */
         $this->responseObj->setRootNodesNumber($rootChildNumber);
 
-        /* l'array verrà rimpito con i dati relativi ai nodi figli trovati */
+        /* l'array verrà riempito con i dati relativi ai nodi figli trovati */
         $jsonChildrenStructure = array();
         if ($resNodes) {
             if ($resNodes->num_rows) {
@@ -67,8 +67,8 @@ class nestedSet
 
         $this->responseObj->setNodes($jsonChildrenStructure);
 
-        /* richiesto la struttura da ritornare all'oggetto responseObj
-         * viene convertita in json dal metodo toJson */
+        /* richiedo la struttura da ritornare all'oggetto responseObj
+         * e poi la converto json con il metodo toJson */
         $response = $this->responseObj->getStructure();
         return $this->responseObj->toJson($response);
     }

@@ -63,6 +63,8 @@ class Database
         if ($pageNum != 0) {
             $startingNode = (($pageNum - 1) * $pageSize + 1)-1;
         }
+
+        // richiedo i dati ordinandoli alfabeticamente per nome nodo
         $query .= ' ORDER BY ntn.nodeName ASC LIMIT ?, ?';
 
         /* faccio il bind dei parametri per la query */
