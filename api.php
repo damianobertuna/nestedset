@@ -9,12 +9,12 @@ include("class/nestedSet.php");
 header("Access-Control-Allow-Origin: *");
 header("Content-type: application/json; charset=UTF-8");
 
+/* $responseObj - inizializzo i valori della struttura da ritornare come risposta */
+$responseObj = new responseClass(0, array(), 0, 0, "");
+
 try {
     /* classe per interagire con il database */
     $db          = new Database($user, $password, $dbname, $host);
-
-    /* $responseObj - inizializzo i valori della struttura da ritornare come risposta */
-    $responseObj = new responseClass(0, array(), 0, 0, "");
 
     /* $requestData - validiamo i parametri passati tramite GET */
     $requestData = new requestData($_GET, $responseObj);
@@ -28,6 +28,8 @@ try {
 
     echo $response;
 } catch (requestException $e) {
-    echo $e->errorMessage();
+    $responseObj->setError($e->errorMessage());
+    $structure = $responseObj->getStructure();
+    echo $responseObj->toJson($structure);
 }
 

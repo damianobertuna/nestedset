@@ -44,17 +44,17 @@ class Database
     public function getChildren(int $idNode, string $language, string $searchKeyword, int $pageNum, int $pageSize)
     {
         $query = 'SELECT Child.idNode, Child.iLeft, Child.iRight, ntn.nodeName, Child.level level 
-FROM node_tree Child 
-    LEFT JOIN node_tree_names ntn ON ntn.idNode = Child.idNode,  node_tree Parent 
-WHERE Child.level = Parent.level + 1 
-  AND Child.iLeft > Parent.iLeft 
-  AND Child.iRight < Parent.iRight 
-  AND Parent.idNode = ? 
-  AND ntn.language = ?';
+                    FROM node_tree Child 
+                    LEFT JOIN node_tree_names ntn ON ntn.idNode = Child.idNode,  node_tree Parent 
+                    WHERE Child.level = Parent.level + 1 
+                    AND Child.iLeft > Parent.iLeft 
+                    AND Child.iRight < Parent.iRight 
+                    AND Parent.idNode = ? 
+                    AND ntn.language = ?';
 
         /* se il parametro search_keyword non è vuoto allora filtro */
         if ($searchKeyword != '') {
-            $searchKeyword = '%'.$searchKeyword.'%';
+            $searchKeyword = '%'.strtolower($searchKeyword).'%';
             $query .= ' AND LOWER(ntn.nodeName) LIKE ?';
         }
 

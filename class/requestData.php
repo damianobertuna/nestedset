@@ -18,7 +18,7 @@ class requestData
         try {
             $this->validateParams($params);
             $this->setParams($params);
-        } catch (Exception $e) {
+        } catch (requestException $e) {
             throw new requestException($e->getMessage());
         }
     }
@@ -36,7 +36,7 @@ class requestData
          */
         foreach ($mandatoryParams as $mandatory) {
             if (!array_key_exists($mandatory, $params)) {
-                throw new Exception($this->getErrorMessage('missing_params'));
+                throw new requestException($this->getErrorMessage('missing_params'));
             }
         }
 
@@ -44,7 +44,15 @@ class requestData
          * node_id non può essere vuoto
          */
         if ((array_key_exists('node_id', $params) && $params['node_id'] == '') || !is_numeric($params['node_id'])) {
-            throw new Exception($this->getErrorMessage('invalid_node_id'));
+            throw new requestException($this->getErrorMessage('invalid_node_id'));
+        }
+
+        /*
+         * language deve essere o itaian o english
+         */
+        $allowedLanguages = array('italian', 'english');
+        if (!in_array($params['language'], $allowedLanguages)) {
+            throw new requestException($this->getErrorMessage('invalid_language'));
         }
 
         /*
@@ -52,7 +60,7 @@ class requestData
          */
         if (array_key_exists('page_num', $params) && $params['page_num'] != '' &&
             !preg_replace( '/[^0-9]/', '', $params['page_num'])) {
-            throw new Exception($this->getErrorMessage('invalid_page_num'));
+            throw new requestException($this->getErrorMessage('invalid_page_num'));
         }
 
         /*
@@ -60,7 +68,7 @@ class requestData
          */
         if (array_key_exists('page_size', $params) && $params['page_size'] != '' &&
             !preg_replace( '/[^0-9]/', '', $params['page_size'])) {
-            throw new Exception($this->getErrorMessage('invalid_page_size'));
+            throw new requestException($this->getErrorMessage('invalid_page_size'));
         }
 
         return true;
@@ -108,7 +116,8 @@ class requestData
             'missing_params'        => 'Missing mandatory params',
             'invalid_page_num'      => 'Invalid page number request',
             'invalid_page_size'     => 'Invalid page size requested',
-            'database_error'        => 'Database connection error'
+            'database_error'        => 'Database connection error',
+            'invalid_language'      => 'Invalid language string'
         );
         return $errorDictionary[$errorName];
     }
