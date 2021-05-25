@@ -31,5 +31,6 @@ try {
     $responseObj->setError($e->errorMessage());    
     echo $responseObj->toJson();
 } catch (Exception $e) {
-    echo $e->getMessage();
+    $responseObj->setError("Something has gone wrong");
+    echo $responseObj->toJson();
 }
