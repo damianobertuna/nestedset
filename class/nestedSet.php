@@ -68,9 +68,8 @@ class nestedSet
         $this->responseObj->setNodes($jsonChildrenStructure);
 
         /* richiedo la struttura da ritornare all'oggetto responseObj
-         * e poi la converto json con il metodo toJson */
-        $response = $this->responseObj->getStructure();
-        return $this->responseObj->toJson($response);
+         * e poi la converto json con il metodo toJson */        
+        return $this->responseObj->toJson();
     }
 
     /** metodo che crea e ritorna un array con i dati dei nodi trovati

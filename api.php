@@ -20,7 +20,7 @@ try {
     $requestData = new requestData($_GET, $responseObj);
 
     /* $nestedObj - oggetto tramite il quale ricerco i figli del nodo passato tramite GET
-    * in base agli altri parametri di filtro (language, search_keyword, page_num e page_size */
+     * in base agli altri parametri di filtro (language, search_keyword, page_num e page_size) */
     $nestedObj   = new nestedSet($db, $requestData, $responseObj);
 
     /* il metodo children cerca i nodi figli e ritorna la stringa json generata */
@@ -28,8 +28,8 @@ try {
 
     echo $response;
 } catch (requestException $e) {
-    $responseObj->setError($e->errorMessage());
-    $structure = $responseObj->getStructure();
-    echo $responseObj->toJson($structure);
+    $responseObj->setError($e->errorMessage());    
+    echo $responseObj->toJson();
+} catch (Exception $e) {
+    echo $e->getMessage();
 }
-

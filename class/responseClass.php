@@ -86,8 +86,8 @@ class ResponseClass
         );
     }
 
-    public function toJson($response)
+    public function toJson()
     {
-        return json_encode($response);
+        return json_encode($this->getStructure());
     }
 }
