@@ -28,9 +28,11 @@ try {
 
     echo $response;
 } catch (requestException $e) {
-    $responseObj->setError($e->errorMessage());    
+    $responseObj->setError($e->errorMessage());
+    http_response_code(400);
     echo $responseObj->toJson();
 } catch (Exception $e) {
     $responseObj->setError("Something has gone wrong");
+    http_response_code(500);
     echo $responseObj->toJson();
 }
